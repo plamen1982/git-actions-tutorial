@@ -160,5 +160,5 @@
     - And anyone in the entire GitHub community can go ahead and leverage that.
       - So GitHub is running that for us in the GitHub Cloud
 
-- Tutorial from **Yarn** and how they use GitHub Action with great example:
+- Tutorial from **Yarn** and how they use GitHub Action with great example: **Mael Nison - work for yarn**
   - 
