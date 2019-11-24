@@ -168,10 +168,82 @@
     - User Yarn 1.17.2
     - Check that the Yarn files don't change on new installs
     - Check that the cache doesn't contain obsolete packages
-    - Check that the cache files are consistent with teir remote sources
+    - Check that the cache files are consistent with their remote sources
     - Check for linting errors
     - CHeck for unmet constraints
     - Complete job
-  - Two problems that yarn solved with Github Actions - time of video 19min:19seconds [example with issues](https://github.com/yarnpkg/berry/issues/342)
+  - Two problems that yarn solved with Github Actions - time of video 19min:19seconds [example with issues](https://github.com/yarnpkg/berry/issues/342) - It comes out they spent more time to figuring out if this is an issue, rather building the project
     -  Problems with checking if issue is real issue and if it is reproducible solved with Action when issue is triggered
     -  If they want to release new version of the project, then the bot just check where there are opened issues are still valid or not
+ - You can use **yarn** workflow because these are just Javascript files
+
+- CI/CD for web services: Another core scenario
+  - Building a container
+  - Testing the container
+  - Then deploying it in multiple different clouds
+### Web services example
+- name Build and Deploy
+- on: 
+  - pull_requirest:
+  - push:
+    - branches:
+      - -master
+- jobs:
+  - build
+    - name: Build
+    - runs-on: ununtu-latest
+    - steps:
+    - -uses: actions/checkout@master
+
+    - -name: Push the image to GPR
+    - run:
+      - docker login docker.pkg.github.com -u publisher -p "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
+      - docker push docker.pkg.github.com/pied-piper-inc/container-service/app-services:latest
+    - env:
+      - GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
+  - deploy_to_aws:
+    - name: Deploy on AWD
+    - runs-on: ununtu-latest
+    - needs: build
+    - steps:
+      - -name: Deploy to AWS Elastic Container Service
+      - -uses: adhereware/aws-ecs@master
+      - env:
+        - AWS_DEFAULT_OUTPUT: json
+        - AWS_DEFAULT_REGION: us-east-1
+        - AWS_ECS_CLUSTER: appservices        
+        - AWS_ECS_TASK_DEFINITION: appservices
+        - AWS_ACCESS_KEY_ID: AKIAV5FUZIES5RXGHBXTK
+        - AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        - CONTAINER_IMAGE_NAME: docker.pkg.github.com/pied-piper-inc/container-service/app-services:latest
+  
+    - deploy_to_azure: 
+      - name: Deploy on AWD
+      - runs-on: ununtu-latest
+      - needs: build
+      - steps:
+        - -uses: azure/actions/login@master
+        - with:
+          - creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+
+        -  -uses: azure/appservice-actions/wabapp-container@master
+        - with:
+          - app-name: 'actionsdemo'
+          - images: 'docker.pkg.github.com/pied-piper-inc/container-service/app-service:latest'
+
+  - deploy_to_google_cloud:
+    - name: Deploy to Google Cloud
+    - runs-on: ununtu-latest
+    - needs: build
+    - steps:
+      - -name: Deploy to Google Kumernetes Engine
+      - -uses: tractionware/google-gke@master
+      - env:
+        - GCLOUD_ZONE: us-central1-a
+        - GCLOUD_KUBE_SERVICE_NAME: appservices
+        - GCLOUD_KUBE_CONTAINER_NAME: app-services-google
+        - GCLOUD_PROJECT: latest-music-215819
+        - GCLOUD_KUBERNETES_CLUSTER: appservices-cluster
+        - GCLOUD_KEY_FILE: ${{ secrets.GCLOUD_KEY_FILE }}
+        - CONTAINER_IMAGE_NAME: docker.pkg.github.com/pied-piper-inc/container-service/app-services:latest
