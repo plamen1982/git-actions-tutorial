@@ -1,1 +1,164 @@
 # git-actions-tutorial
+[Video](https://www.youtube.com/watch?v=E1OunoCyuhY)
+- new features in Github in 2019
+  - Free private repos
+    - free for all users
+  - Package Registry
+    - Share packages for private and public repos
+    - Feed for every repo
+  - Dependabot
+    - Automatic security remediation pull requests, if you have vulnerable dependencies - free for all developers
+  - Desktop 2.0
+    - Support rebaseing and stashing and a lots of other great features
+  - Pull Panda
+    - Helps you and your team to work productively together, stay on top of pull requests, reduce code review time
+  - Sponsors
+    - Financially support the developers that you follow in GitHub
+- Github actions
+  - Build in CI/CD deployment
+  - Fully integrated in github
+  - Respond to any Github event
+    - Trigger workflows on any github event, in github is registrated
+      - New contributor
+      - New Issue
+      - New Dependency
+      - Run on any event there is a webhook that you can listen, you can trigger workflows with Github actions
+  - Community-powered workflows
+    - Any workflow is sharable
+      - You can make it public 
+      - You can fork it, edit it, build on top of it and make it yours
+  - Sny platform, any language, any cloud
+    - Github is agnostic, any language, any platform
+- Since GitHub actions are build in
+  - No need to manually configure and setup CI/CD
+  - You do not need to setup webhooks
+  - You do not need to buy hardware
+  - Example: Get some instances keep them up to date do security patches in your images, spool down idle machines, none of that is needed... just drop one file in your repo and is working
+## Tutorial to start about Actions
+- Go to Actions in github
+  - You can see on top Node.js (CI/CD for node.js) and Node.js Package(For registering packages)
+  - But all the lanuages are support just click load more
+  - Github actions are lot more than CI/CD
+    - It really can connect all of the different tools and services that you use and it can respond on any event on GitHub
+      - It can be creating a new issue
+      - It can be a comment
+      - Someone new comes to your repository
+      - Joints a member
+    - You can also automate
+      - creating a new contributor
+      - you can automatically label issues based on files that are changed in the repository or label a pull
+      - You can autmatically clase stale issues
+- Setup Node.js with Actions
+  - Click on Setup with Node.js
+    - Automatically is created YAML workflow file directly in your repository, this is a simple CI template and on the right side you can see a samples with most developers want to do and also there is link with more details about workflows in Github Actions
+    - Scroll down to do a matrix build, you can build across **Mac, Windows and Linux**
+    - Click Start Commit
+      - The from the radio menu choose Create a **new branch** for this commit and start a pull request.Learn more aboult pull request
+      - Then click propose new file
+      - Then click Create pull request
+      - Then you can notice immediately CI is runned
+        - Then click on Details link agains every build you can find this link
+          - You can see live streaming logs build directly into the experience
+          - You can see in the log there is color coding, emoji support as well
+          - You can search in logs in the top right corner of the logs console
+          - You can click on the ...(triple dots menu) and choose from the three options: Show timestamps, Download log archive, View raw logs
+            - Show timestamps it will show timestamps on every single line
+  - In your .github/workflow in your main directory of the project you can add different multiple work flows
+    - ci.yml
+    - greetigs.yml
+    - stale.yml
+  - If you have larger repository 
+    - you can do filters on specific paths, so we can have multiple different builds kicked off for that same repository, if I had different apps in it, as well
+
+- ci.yml Example: this below is the content in yaml format
+  - name: CI
+  - on:
+    - pull/request
+      - branches
+        - master
+    - push
+      - branches
+        - -master
+  - jobs:
+    - build:
+      - strategy:
+        - matrix:
+          - os:
+            - -macOS-latest
+            - -ubuntu-latest
+            - -windows-latest
+          - node-version:
+            - -8
+            - -10
+            - -12
+          - runs-on: ${{matrix.os}}
+          - steps:
+            - uses: actions/checkout@master
+            - uses: actions/setup-node@master
+              - with:
+                - version: ${{matrix.node-version}}
+              - run: npm ci
+              - run: npm test
+          - publish-npm:
+            - needs: build
+            - runs-on: ubuntu-latest
+            - steps:
+              - uses: actions/checkout@master
+              - uses: actions/setup-node@master
+                - with 
+                  - version: 12
+                  - registry-url: https://registry.npmjs.org
+                - name: Update package version
+                  - run: |
+                    - git config user.name "Actions User"
+                    - git config user.email noreply@github.com
+                    - npm version 1.0.$(date +%s)
+                  - run: npm publish
+                    - env: 
+                      - NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+            - publish-github-package-registry:
+            - needs: build
+            - runs-on: ubuntu-latest
+            - steps:
+              - uses: actions/checkout@master
+              - uses: actions/setup-node@master
+                - with 
+                  - version: 12
+                  - registry-url: https://registry.npmjs.org
+                  - scope: '@pied-piper-inc'
+                - name: Update package version
+                  - run: |
+                    - git config user.name "Actions User"
+                    - git config user.email noreply@github.com
+                    - npm version 1.0.$(date +%s)
+                  - run: npm publish
+                    - env: 
+                      - NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+  - In the example above
+    - **on** - is the trigger event that will start the workflow, and this is work with all events in the github repo, you can also triggers Jenkins or anythings else here. You can check the list of events at [this link here](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows#webhook-events). You can imagine to editing on Wiki(that is in github), uploading a package to Github Package Registry, doing a deployment, a comment on a issue, whenever a label is created, any of these events can automate
+      - branches
+        - -master **-** means that will filter this event only for master. Basically **-** in front of anything means filtering 
+        - you can filter on file paths, branches and many more things
+    - **jobs** - this section from the example is to see all the jobs that are runned, matrix strategy is ruuning right here
+      - Here we do little bit more... it's not just building across three different operating systems it's also building multiple different versions of Node as well and this not have to be node it could be GO or any other runtime - this is 9(3 operating systems and 3 node version) total of 9 jobs at the same time kicked off, speed up your testing and getting a much broader set of testing.
+        - little down of **jobs** we have **steps** that are running inside this job
+        - one of thing you will notice that there are **uses** command in the example so this let you reference an action that lives in another repository and one of the awesome things about this is you don't have to go install an action or deal with any of that or install a GitHub App just to be able to leverage another action. All you have to do is put JavaScript file and that is an action
+          - Let's check that kind of actoin we looging at **actions/setup-node@master** - this one is living in actions org in GitHub in **setup-node** repository and the version that we picking is just a branch(in this case **@master**) it can be a branch or a tag
+            - Now let's go to this repositry at github.com/actions/setup-node [github.com/actions/setup-node](github.com/actions/setup-node)
+              - You can see one more time actions are just a repository
+                - We can go to the source of this in folder **src**
+                  - then just open setup-node.js and you can see this is just a Javascript file, setting a repository
+          - **with** pass a parameters for the actions in **uses**
+          - **run** npm ci - is to run a scripts and any tool that have ci GitHub actions support it
+    - **needs** - says whenever build complete go ahead and take these(**publish-npm and publish-github-package-registry**) off in parallel
+    - **credentials** GitHub has a built in secret store to make it easy to go ahead and deploy to any package registry or to any cloud
+      - and you can notice the **env** NODE_AUTH_TOKEN : {{secrets.npm_token}} - **{{secrets.npm_token}}** this is how we reference our secret store 
+        - The location of secret store is any reposity -> Go to **Setting** in your repo -> then in the site menu **Secrets** and you can see **npm_toke**(for the demo example it can be your own one) the tokens right there,
+  - Conclusion:
+    - You don't have to worry setting up compute or deploying a server
+    - You just go ahead and check a JavaScript file into a repo
+    - And anyone in the entire GitHub community can go ahead and leverage that.
+      - So GitHub is running that for us in the GitHub Cloud
+
+- Tutorial from **Yarn** and how they use GitHub Action with great example:
+  - 
