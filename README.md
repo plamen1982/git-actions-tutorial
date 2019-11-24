@@ -271,3 +271,21 @@
         - GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}upda
         - LD_ACCESS_TOKEN: ${{ secrets.LD_ACCESS_TOKEN }}
         - LD_PROJE_KEY: support-service
+
+## Summary:
+- Git Actions can run in a container or on a virtual machine with support of Linux, MacOS, Windows
+- Actions support matrix builds natively, so you can run parallel jobs across operating system version, run time versions or any variable you want to use to multiple your workflows
+- Actions have build-in support for real-time feedback in the form of streaming logs, that are searchable, support colors, emojis and are deep linkable that you can use to help pinpoint a log line and send that to a friend or a colleague
+- Every repo on GitHub now comes with secure secret store where you can store your secrets update them easily
+- Since actions are on GitHub they are easy to write easy to share, you can build on top of someone else Action
+- Free for public repositories
+- For private repos - pay as you go: check price list at minute **30:28**
+- Later this year(2019) you can run on your own machine for free on Linux, MacOS, Windows, Raspberry Pi
+### List of open-source projects that use Git Actions you can go to these repos and look at their workflows
+- scipy/scipy
+- imagemagick/imagemagick
+- yarnpkg/berry
+- twbs/bootstrap
+- ruby/ruby
+- junit-team/junit5
+- numpy/numpy
