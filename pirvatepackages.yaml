@@ -1,0 +1,13 @@
+steps:
+  - uses: actions/checkout@v1
+  - uses: actions/setup-node@v1
+    with:
+      node-version: '10.x'
+      registry-url: 'https://registry.npmjs.org'
+  # Skip post-install scripts here, as a malicious
+  # script could steal NODE_AUTH_TOKEN.
+  - run: npm install --ignore-scripts
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  # `npm rebuild` will run all those post-install scripts for us.
+  - run: npm rebuild && npm run prepare --if-present
