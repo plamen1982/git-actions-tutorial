@@ -247,3 +247,27 @@
         - GCLOUD_KUBERNETES_CLUSTER: appservices-cluster
         - GCLOUD_KEY_FILE: ${{ secrets.GCLOUD_KEY_FILE }}
         - CONTAINER_IMAGE_NAME: docker.pkg.github.com/pied-piper-inc/container-service/app-services:latest
+  ### Now when we make a pull request we will se in the pull request area in github. All these actions done with console with live updating
+
+    - you will notice that alse there is a cold folding(imitate structure of tree), with colorizing, so you can really focus on what is matters when reading the logs. This color lines is what we write exactly in our files, so you can see how you wrote that and how GitHub interpret that
+    - Another cool feater is that on warnings, when you hover in the build console in github in pull request section is that you can copy the error or warning there is a popup that you can press and just copy that warning link, and when the page is refresh this is already highlighted
+
+### Launchdarkly example:
+
+- on: push
+- name: SupportService Workflow
+- jobs:
+  - launchDarklyCodeReferences:
+    - name: LaunchDarkly Code Refrences
+    - runs-on: ubuntu-lastes
+    - steps:
+      - -name: Checkout repository
+      - uses: actions/checkout@master
+      - -name: Prepare repository
+      - run: git checkout "${GITHUB_REF:11}"
+      - -name: Update LaunchDarkly Code References
+      - uses: ./
+      - env:
+        - GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}upda
+        - LD_ACCESS_TOKEN: ${{ secrets.LD_ACCESS_TOKEN }}
+        - LD_PROJE_KEY: support-service
