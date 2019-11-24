@@ -161,4 +161,17 @@
       - So GitHub is running that for us in the GitHub Cloud
 
 - Tutorial from **Yarn** and how they use GitHub Action with great example: **Mael Nison - work for yarn**
-  - 
+  - Build workflow for **yarn**
+    - Set up job
+    - Run actions/checkout@master
+    - Use Node.js 10.x
+    - User Yarn 1.17.2
+    - Check that the Yarn files don't change on new installs
+    - Check that the cache doesn't contain obsolete packages
+    - Check that the cache files are consistent with teir remote sources
+    - Check for linting errors
+    - CHeck for unmet constraints
+    - Complete job
+  - Two problems that yarn solved with Github Actions - time of video 19min:19seconds [example with issues](https://github.com/yarnpkg/berry/issues/342)
+    -  Problems with checking if issue is real issue and if it is reproducible solved with Action when issue is triggered
+    -  If they want to release new version of the project, then the bot just check where there are opened issues are still valid or not
